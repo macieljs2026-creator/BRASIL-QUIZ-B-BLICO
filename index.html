@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo Bíblico — Perguntas e Respostas</title>
+    <style>
+        /* --- Cores e tema bíblico --- */
+        :root {
+            --primary: #8B4513;
+            --secondary: #Deb887;
+            --accent: #DAA520;
+            --bg: #F5DEB3;
+            --card: #FFF8DC;
+            --text: #2F1B0C;
+            --text-light: #5D4037;
+            --success: #4CAF50;
+            --danger: #F44336;
+            --border: rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #E6D3A7 0%, #C9B08C 50%, #A68B63 100%);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .screen {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .welcome {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 18px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(139, 69, 19, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent);
+        }
+
+        .question-counter {
+            text-align: center;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--text-light);
+        }
+
+        .question-box {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--primary);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            padding: 20px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option-btn:hover {
+            background: var(--secondary);
+        }
+
+        .option-btn.correct {
+            background: #E8F5E9;
+            border-color: #4CAF50;
+            color: #2E7D32;
+        }
+
+        .option-btn.incorrect {
+            background: #FFEBEE;
+            border-color: #F44336;
+            color: #C62828;
+        }
+
+        .feedback {
+            text-align: center;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .feedback.correct {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .feedback.incorrect {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .results-screen h2 {
+            color: var(--primary);
+        }
+
+        .final-score {
+            font-size: 3rem;
+            text-align: center;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .profile-section, .settings-section {
+            margin-top: 20px;
+        }
+
+        .profile-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--secondary);
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .ranking-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+
+        .position {
+            font-weight: bold;
+            width: 40px;
+        }
+
+        .category-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .category-item:hover {
+            background: var(--secondary);
+        }
+
+        /* Hide scrollbar */
+        .scrollable {
+            scrollbar-width: none;
+        }
+        .scrollable::-webkit-scrollbar {
+            display: none;
+        }
+
+        @media (max-width: 400px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .screen {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Tela Principal do Jogo -->
+        <div class="screen" id="mainScreen">
+            <h1 ondblclick="openAdmin()">📖 Jogo Bíblico</h1>
+            <div class="welcome" id="welcomeMessage">Bem-vindo(a), jogador(a)!</div>
+            <div class="welcome" id="coinDisplay">🪙 Moedas: 0</div>
+            
+            <button class="btn btn-primary" onclick="startGame()">🎮 JOGAR</button>
+            <button class="btn btn-secondary" onclick="showRanking()">🏆 RANKING</button>
+            <button class="btn btn-primary" onclick="showProfile()">👤 MEU PERFIL</button>
+            <button class="btn btn-secondary" onclick="showCategories()">📚 CATEGORIAS</button>
+            <button class="btn btn-secondary" onclick="showSettings()">⚙️ CONFIGURAÇÕES</button>
+            <button class="btn btn-danger" onclick="logout()">🚪 SAIR</button>
+        </div>
+
+        <!-- Tela de Jogo -->
+        <div class="screen hidden" id="gameScreen">
+            <div class="question-counter">Pergunta <span id="currentQuestion">1</span>/<span id="totalQuestions">10</span></div>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="score">0</div>
+                    <div class="stat-label">Pontos</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="correct">0</div>
+                    <div class="stat-label">Acertos</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="incorrect">0</div>
+                    <div class="stat-label">Erros</div>
+                </div>
+            </div>
+            
+            <div class="question-box">
+                <div class="question-text" id="questionText">Pergunta aparecerá aqui</div>
+                <div class="options-grid" id="optionsGrid"></div>
+            </div>
+        </div>
+
+        <!-- Tela de Resultado -->
+        <div class="screen hidden" id="resultScreen">
+            <h2>PARTIDA FINALIZADA!</h2>
+            <div class="final-score" id="finalScore">Pontuação Final</div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="finalCorrect">0</div>
+                    <div class="stat-label">Acertos</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="finalIncorrect">0</div>
+                    <div class="stat-label">Erros</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="finalPercentage">0%</div>
+                    <div class="stat-label">Aproveitamento</div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="restartGame()">🔄 JOGAR NOVAMENTE</button>
+            <button class="btn btn-secondary" onclick="backToMain()">🏠 VOLTAR AO MENU</button>
+        </div>
+
+        <!-- Tela de Perfil -->
+        <div class="screen hidden" id="profileScreen">
+            <h2>👤 MEU PERFIL</h2>
+            
+            <div class="profile-section">
+                <div class="profile-item">
+                    <span>Nome:</span>
+                    <span id="profileName">Usuário</span>
+                </div>
+                <div class="profile-item">
+                    <span>E-mail:</span>
+                    <span id="profileEmail">-</span>
+                </div>
+                <div class="profile-item">
+                    <span>Pontuação Total:</span>
+                    <span id="totalScore">0</span>
+                </div>
+                <div class="profile-item">
+                    <span>Partidas Jogadas:</span>
+                    <span id="gamesPlayed">0</span>
+                </div>
+                <div class="profile-item">
+                    <span>Respostas Corretas:</span>
+                    <span id="totalCorrect">0</span>
+                </div>
+                <div class="profile-item">
+                    <span>Melhor Pontuação:</span>
+                    <span id="bestScore">0</span>
+                </div>
+            </div>
+
+            <button class="btn btn-secondary" onclick="backToMain()">🏠 VOLTAR AO MENU</button>
+        </div>
+
+        <!-- Tela de Categorias -->
+        <div class="screen hidden" id="categoriesScreen">
+            <h2>📚 CATEGORIAS</h2>
+            
+            <div class="category-item" onclick="selectCategory('antigo-testamento')">📖 Antigo Testamento</div>
+            <div class="category-item" onclick="selectCategory('novo-testamento')">⭐ Novo Testamento</div>
+            <div class="category-item" onclick="selectCategory('jesus')">✝️ Jesus</div>
+            <div class="category-item" onclick="selectCategory('apostolos')">👥 Apóstolos</div>
+            <div class="category-item" onclick="selectCategory('profetas')">🔮 Profetas</div>
+            <div class="category-item" onclick="selectCategory('reis')">👑 Reis</div>
+            <div class="category-item" onclick="selectCategory('salmos')">🎵 Salmos</div>
+            <div class="category-item" onclick="selectCategory('parabolas')">🎯 Parábolas</div>
+            <div class="category-item" onclick="selectCategory('geral')">🌍 Bíblia Geral</div>
+
+            <button class="btn btn-secondary" onclick="backToMain()">🏠 VOLTAR AO MENU</button>
+        </div>
+
+        <!-- Tela de Ranking -->
+        <div class="screen hidden" id="rankingScreen">
+            <h2>🏆 RANKING</h2>
+            
+            <div class="ranking-list scrollable">
+                <div class="ranking-item">
+                    <span class="position">🥇 1º</span>
+                    <span>João Silva</span>
+                    <span>950 pts</span>
+                </div>
+                <div class="ranking-item">
+                    <span class="position">🥈 2º</span>
+                    <span>Maria Oliveira</span>
+                    <span>890 pts</span>
+                </div>
+                <div class="ranking-item">
+                    <span class="position">🥉 3º</span>
+                    <span>Pedro Santos</span>
+                    <span>820 pts</span>
+                </div>
+                <div class="ranking-item">
+                    <span class="position">4º</span>
+                    <span>Ana Costa</span>
+                    <span>750 pts</span>
+                </div>
+                <div class="ranking-item">
+                    <span class="position">5º</span>
+                    <span>Carlos Lima</span>
+                    <span>680 pts</span>
+                </div>
+            </div>
+
+            <button class="btn btn-secondary" onclick="backToMain()">🏠 VOLTAR AO MENU</button>
+        </div>
+
+        <!-- Tela de Configurações -->
+        <div class="screen hidden" id="settingsScreen">
+            <h2>⚙️ CONFIGURAÇÕES</h2>
+            
+            <div class="settings-section">
+                <div class="profile-item">
+                    <span>Som</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="profile-item">
+                    <span>Notificações</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="profile-item">
+                    <span>Tema Escuro</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="profile-item">
+                    <button class="btn btn-danger" style="width: auto; padding: 5px 15px;" onclick="logout()">Sair da Conta</button>
+                </div>
+            </div>
+
+            <div id="questionReference" style="text-align:center;margin:12px 0;font-style:italic;"></div>
+            <button class="btn btn-secondary" onclick="backToMain()">🏠 VOLTAR AO MENU</button>
+        </div>
+    </div>
+
+    <script>
+        // Estado da partida
+        let gameState = {
+            currentQuestion: 0,
+            total: 10,
+            score: 0,
+            correct: 0,
+            incorrect: 0,
+            selectedOption: null,
+            answered: false
+        };
+
+        // Usuário atual (simulado com dados locais)
+        let currentUser = null;
+        let selectedCategory = 'geral';
+
+        // Banco inicial do BRASIL QUIZ BÍBLICO — pode ser ampliado sem alterar a estrutura do app.
+        const sampleQuestions = [
+            {
+                question: "Quem construiu a arca?",
+                options: ["Abraão", "Moisés", "Noé", "Davi"],
+                correctAnswer: 2,
+                reference: "Gênesis 6:14"
+            },
+            { question: "Qual livro da Bíblia conta a história de Jonas?", options: ["Samuel", "Jonas", "Eclesiástico", "Coríntios"], correctAnswer: 1, reference: "Jonas 1:1", category: "profetas" },
+            { question: "Quem derrotou Golias?", options: ["Saul", "Davi", "Salomão", "Josué"], correctAnswer: 1, reference: "1 Samuel 17", category: "reis" },
+            { question: "Quem recebeu os Dez Mandamentos?", options: ["Moisés", "Abraão", "Pedro", "Elias"], correctAnswer: 0, reference: "Êxodo 20", category: "antigo-testamento" },
+            { question: "Qual foi o primeiro homem criado por Deus?", options: ["Noé", "Adão", "Jacó", "Isaac"], correctAnswer: 1, reference: "Gênesis 2:7", category: "geral" },
+            { question: "Quem era a mãe de Jesus?", options: ["Marta", "Maria", "Ana", "Isabel"], correctAnswer: 1, reference: "Lucas 1:30-31", category: "jesus" },
+            { question: "Quantos apóstolos Jesus escolheu?", options: ["10", "11", "12", "14"], correctAnswer: 2, reference: "Lucas 6:13", category: "apostolos" },
+            { question: "Qual é o último livro da Bíblia?", options: ["Atos", "Judas", "Apocalipse", "Romanos"], correctAnswer: 2, reference: "Apocalipse 1:1", category: "novo-testamento" },
+            { question: "Quem interpretou sonhos no Egito e se tornou governador?", options: ["José", "Daniel", "Ezequiel", "Neemias"], correctAnswer: 0, reference: "Gênesis 41", category: "antigo-testamento" },
+            { question: "Qual era a profissão de Pedro antes de seguir Jesus?", options: ["Carpinteiro", "Pescador", "Pastor", "Soldado"], correctAnswer: 1, reference: "Mateus 4:18-20", category: "apostolos" },
+            { question: "Jesus transformou água em quê?", options: ["Azeite", "Leite", "Vinho", "Mel"], correctAnswer: 2, reference: "João 2:1-11", category: "jesus" },
+            { question: "Quem foi lançado na cova dos leões?", options: ["Daniel", "Elias", "Samuel", "Jeremias"], correctAnswer: 0, reference: "Daniel 6", category: "profetas" },
+            { question: "Qual rei pediu sabedoria a Deus?", options: ["Saul", "Davi", "Salomão", "Ezequias"], correctAnswer: 2, reference: "1 Reis 3:9", category: "reis" },
+            { question: "Qual é o primeiro livro da Bíblia?", options: ["Êxodo", "Gênesis", "Mateus", "Salmos"], correctAnswer: 1, reference: "Gênesis 1:1", category: "antigo-testamento" },
+            { question: "Qual discípulo negou Jesus três vezes?", options: ["João", "Pedro", "Tiago", "Tomé"], correctAnswer: 1, reference: "Lucas 22:54-62", category: "apostolos" },
+            { question: "Qual era o nome do jardim onde Adão e Eva viviam?", options: ["Getsêmani", "Éden", "Carmelo", "Sião"], correctAnswer: 1, reference: "Gênesis 2:8", category: "geral" }
+        ];
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUser();
+        });
+
+        // Carregar usuário logado
+        function loadUser() {
+            const user = localStorage.getItem('user');
+            if (user) {
+                currentUser = JSON.parse(user);
+                document.getElementById('welcomeMessage').textContent = 
+                    `Bem-vindo(a), ${currentUser.name || 'Jogador'}!`;
+                
+                // Carregar dados do perfil
+                const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                document.getElementById('profileName').textContent = currentUser.name || 'Usuário';
+                document.getElementById('profileEmail').textContent = currentUser.email || '-';
+                document.getElementById('totalScore').textContent = userData.totalScore || 0;
+                document.getElementById('gamesPlayed').textContent = userData.gamesPlayed || 0;
+                document.getElementById('totalCorrect').textContent = userData.totalCorrect || 0;
+                document.getElementById('bestScore').textContent = userData.bestScore || 0;
+                updateCoins();
+            } else {
+                currentUser = { name: 'Jogador', email: '', id: 'guest-' + Math.random().toString(36).slice(2, 10) };
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                localStorage.setItem('userData', JSON.stringify({coins: 100,totalScore:0,gamesPlayed:0,totalCorrect:0,bestScore:0}));
+                document.getElementById('welcomeMessage').textContent = 'Bem-vindo(a), Jogador!';
+                updateCoins();
+            }
+        }
+
+        // Iniciar jogo
+        function startGame() {
+            gameState = {
+                currentQuestion: 0,
+                total: 10,
+                score: 0,
+                correct: 0,
+                incorrect: 0,
+                selectedOption: null,
+                answered: false
+            };
+            
+            document.getElementById('totalQuestions').textContent = gameState.total;
+            showScreen('gameScreen');
+            loadQuestion();
+        }
+
+        // Carregar pergunta atual
+        function loadQuestion() {
+            // Atualizar contador
+            document.getElementById('currentQuestion').textContent = gameState.currentQuestion + 1;
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('correct').textContent = gameState.correct;
+            document.getElementById('incorrect').textContent = gameState.incorrect;
+
+            // Usar perguntas de exemplo (serão substituídas pela Etapa 4)
+            const pool = selectedCategory === 'geral' ? sampleQuestions : sampleQuestions.filter(q => q.category === selectedCategory || q.category === 'geral');
+            const question = pool[gameState.currentQuestion % pool.length];
+            document.getElementById('questionText').textContent = question.question;
+            
+            // Limpar opções
+            const optionsGrid = document.getElementById('optionsGrid');
+            optionsGrid.innerHTML = '';
+            gameState.answered = false;
+
+            // Adicionar opções
+            question.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => selectOption(index, question.correctAnswer);
+                optionsGrid.appendChild(btn);
+            });
+        }
+
+        // Selecionar opção
+        function selectOption(selectedIndex, correctIndex) {
+            if (gameState.answered) return;
+            
+            gameState.answered = true;
+            const buttons = document.querySelectorAll('.option-btn');
+            
+            buttons.forEach((btn, index) => {
+                if (index === correctIndex) {
+                    btn.classList.add('correct');
+                } else if (index === selectedIndex) {
+                    btn.classList.add(selectedIndex === correctIndex ? 'correct' : 'incorrect');
+                }
+                btn.disabled = true;
+            });
+
+            if (selectedIndex === correctIndex) {
+                gameState.score += 10;
+                gameState.correct++;
+                changeCoins(5);
+            } else {
+                gameState.incorrect++;
+            }
+
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('correct').textContent = gameState.correct;
+            document.getElementById('incorrect').textContent = gameState.incorrect;
+            const q = (selectedCategory === 'geral' ? sampleQuestions : sampleQuestions.filter(x => x.category === selectedCategory || x.category === 'geral'))[gameState.currentQuestion % (selectedCategory === 'geral' ? sampleQuestions.length : sampleQuestions.filter(x => x.category === selectedCategory || x.category === 'geral').length)];
+            const ref = document.getElementById('questionReference');
+            if (ref) ref.textContent = q.reference ? `📖 ${q.reference}` : '';
+        }
+
+        // Próxima pergunta ou resultado
+        function nextQuestion() {
+            gameState.currentQuestion++;
+            
+            if (gameState.currentQuestion >= gameState.total) {
+                showResult();
+            } else {
+                loadQuestion();
+            }
+        }
+
+        // Mostrar resultado final
+        function showResult() {
+            const percentage = Math.round((gameState.correct / gameState.total) * 100);
+            
+            document.getElementById('finalScore').textContent = `${gameState.score} pontos`;
+            document.getElementById('finalCorrect').textContent = gameState.correct;
+            document.getElementById('finalIncorrect').textContent = gameState.incorrect;
+            document.getElementById('finalPercentage').textContent = `${percentage}%`;
+            
+            // Salvar resultado
+            saveGameResult({
+                date: new Date().toISOString(),
+                score: gameState.score,
+                correct: gameState.correct,
+                incorrect: gameState.incorrect,
+                total: gameState.total
+            });
+
+            showScreen('resultScreen');
+        }
+
+        // Salvar resultado
+        function saveGameResult(result) {
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+            userData.totalScore = (userData.totalScore || 0) + result.score;
+            userData.gamesPlayed = (userData.gamesPlayed || 0) + 1;
+            userData.totalCorrect = (userData.totalCorrect || 0) + result.correct;
+            userData.bestScore = Math.max(userData.bestScore || 0, result.score);
+            
+            localStorage.setItem('userData', JSON.stringify(userData));
+        }
+
+        // Reiniciar jogo
+        function restartGame() {
+            startGame();
+        }
+
+        function updateCoins() {
+            const d = JSON.parse(localStorage.getItem('userData') || '{}');
+            const coins = d.coins || 0;
+            const el = document.getElementById('coinDisplay');
+            if (el) el.textContent = `🪙 Moedas: ${coins}`;
+        }
+
+        function changeCoins(amount) {
+            const d = JSON.parse(localStorage.getItem('userData') || '{}');
+            d.coins = Math.max(0, (d.coins || 0) + amount);
+            localStorage.setItem('userData', JSON.stringify(d));
+            updateCoins();
+        }
+
+        // Sala administrativa local (protótipo). Para produção, a autorização deve ser validada no servidor.
+        function openAdmin() {
+            const key = prompt('Área administrativa. Informe sua chave:');
+            if (key !== 'ADMIN_LOCAL') { alert('Acesso negado.'); return; }
+            const d = JSON.parse(localStorage.getItem('userData') || '{}');
+            const action = prompt('ADMIN: digite +10, -10 ou RESET para alterar suas moedas:');
+            if (action === '+10') changeCoins(10);
+            else if (action === '-10') changeCoins(-10);
+            else if (action === 'RESET') { d.coins = 0; localStorage.setItem('userData', JSON.stringify(d)); updateCoins(); }
+            alert('Operação concluída.');
+        }
+
+        // Mostrar tela de ranking
+        function showRanking() {
+            showScreen('rankingScreen');
+        }
+
+        // Mostrar tela de perfil
+        function showProfile() {
+            showScreen('profileScreen');
+        }
+
+        // Mostrar tela de categorias
+        function showCategories() {
+            showScreen('categoriesScreen');
+        }
+
+        // Selecionar categoria (preparado para Etapa 4)
+        function selectCategory(category) {
+            selectedCategory = category;
+            startGame();
+        }
+
+        // Mostrar tela de configurações
+        function showSettings() {
+            showScreen('settingsScreen');
+        }
+
+        // Voltar ao menu principal
+        function backToMain() {
+            showScreen('mainScreen');
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('user');
+            localStorage.removeItem('userData');
+            window.location.reload();
+        }
+
+        // Trocar telas
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
